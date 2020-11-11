@@ -207,19 +207,23 @@ func TestDetermineLocale(t *testing.T) {
 
 	for _, c := range cases {
 		func() {
+			err := os.Mkdir(assetsDir, 0777)
+			if err != nil {
+				t.Fatalf("%s", err)
+			}
+			err = os.Mkdir(defaultDir, 0777)
+			if err != nil {
+				t.Fatalf("%s", err)
+			}
 			if c.createDir {
-				err := os.Mkdir(assetsDir, 0777)
-				if err != nil {
-					t.Fatalf("%s", err)
-				}
 				for _, lang := range c.handler.SupportedLocales {
 					err = os.Mkdir(filepath.Join(assetsDir, lang.String()), 0777)
 					if err != nil {
 						t.Fatalf("%s", err)
 					}
 				}
-				defer os.RemoveAll(assetsDir)
 			}
+			defer os.RemoveAll(assetsDir)
 			actual := c.handler.determineLocalizedDir(c.acceptLanguageKey)
 			if !reflect.DeepEqual(actual, c.expected) {
 				t.Errorf("localeHandler.determineLocalizedDir(%#v) returns %#v, expected %#v", c.acceptLanguageKey, actual, c.expected)
